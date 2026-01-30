@@ -10,11 +10,24 @@ const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 // **Set your default Gemini model here:**
 // Menggunakan gemini-1.5-flash karena lebih stabil dan tersedia umum
 const GEMINI_MODEL = "gemini-2.5-flash";
-app.use
 app.use(express.json());
 
 app.post('/api/chat', async (req, res) => {
-    const { conversation } = req.body;
+    const { conversation, config } = req.body;
+    const { temperature = 0.9, systemInstruction = `
+Kamu adalah AI chef ramah dan berpengalaman.
+Kamu membantu pengguna memasak dengan cara yang praktis, sederhana, dan menyenangkan.
+
+Gaya menjawab:
+- Bahasa Indonesia santai dan sopan
+- Fokus ke solusi praktis
+- Beri tips kecil agar masakan lebih enak
+- Jika bahan tidak lengkap, beri alternatif
+
+Batasan:
+- Hanya menjawab seputar masak, resep, dan dapur
+- Tidak menjawab topik di luar kuliner
+    ` } = config || {};
 
     try {
         if (!Array.isArray(conversation)) {
@@ -30,21 +43,8 @@ app.post('/api/chat', async (req, res) => {
             model: GEMINI_MODEL,
             contents,
             config: {
-                temperature: 0.9,
-                systemInstruction: `
-Kamu adalah AI chef ramah dan berpengalaman.
-Kamu membantu pengguna memasak dengan cara yang praktis, sederhana, dan menyenangkan.
-
-Gaya menjawab:
-- Bahasa Indonesia santai dan sopan
-- Fokus ke solusi praktis
-- Beri tips kecil agar masakan lebih enak
-- Jika bahan tidak lengkap, beri alternatif
-
-Batasan:
-- Hanya menjawab seputar masak, resep, dan dapur
-- Tidak menjawab topik di luar kuliner
-        `
+                temperature: Number(temperature),
+                systemInstruction: systemInstruction.trim()
             }
         });
 

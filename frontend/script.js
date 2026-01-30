@@ -2,6 +2,21 @@
 const chatForm = document.getElementById('chat-form');
 const userInput = document.getElementById('user-input');
 const chatBox = document.getElementById('chat-box');
+const settingsToggle = document.getElementById('settings-toggle');
+const settingsPanel = document.getElementById('settings-panel');
+const systemInstructionInput = document.getElementById('system-instruction');
+const temperatureInput = document.getElementById('temperature');
+const tempValueDisplay = document.getElementById('temp-value');
+
+// Toggle Settings Panel
+settingsToggle.addEventListener('click', () => {
+  settingsPanel.classList.toggle('hidden');
+});
+
+// Update temperature value display
+temperatureInput.addEventListener('input', (e) => {
+  tempValueDisplay.textContent = e.target.value;
+});
 
 // Function to parse basic Markdown
 function parseMarkdown(text) {
@@ -62,7 +77,11 @@ async function handleChatSubmit(event) {
       body: JSON.stringify({
         conversation: [
           { role: 'user', text: message }
-        ]
+        ],
+        config: {
+          temperature: temperatureInput.value,
+          systemInstruction: systemInstructionInput.value
+        }
       })
     });
 
