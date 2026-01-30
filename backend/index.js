@@ -15,11 +15,14 @@ app.use(express.json());
 
 app.post('/api/chat', async (req, res) => {
     const { conversation } = req.body;
+
     try {
-        if (!Array.isArray(conversation)) throw new Error('Messages must be an array!');
+        if (!Array.isArray(conversation)) {
+            throw new Error('Messages must be an array!');
+        }
 
         const contents = conversation.map(msg => ({
-            role: msg.role,
+            role: msg.role, // hanya "user" atau "model"
             parts: [{ text: msg.text || msg.content }]
         }));
 
@@ -28,8 +31,21 @@ app.post('/api/chat', async (req, res) => {
             contents,
             config: {
                 temperature: 0.9,
-                systemInstruction: "Jawab hanya menggunakan bahasa Indonesia.",
-            },
+                systemInstruction: `
+Kamu adalah AI chef ramah dan berpengalaman.
+Kamu membantu pengguna memasak dengan cara yang praktis, sederhana, dan menyenangkan.
+
+Gaya menjawab:
+- Bahasa Indonesia santai dan sopan
+- Fokus ke solusi praktis
+- Beri tips kecil agar masakan lebih enak
+- Jika bahan tidak lengkap, beri alternatif
+
+Batasan:
+- Hanya menjawab seputar masak, resep, dan dapur
+- Tidak menjawab topik di luar kuliner
+        `
+            }
         });
 
         res.status(200).json({ result: response.text });
